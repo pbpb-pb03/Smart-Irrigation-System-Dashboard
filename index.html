@@ -1,13 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
+  <meta name="google-site-verification" content="ubP1fMDpNataBsqDRdeIVXRww9LBQ0Mg3308vtlNVGA" />
   <meta charset="UTF-8">
   <title>ESP32 Irrigation Monitoring</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- GOOGLE SEARCH CONSOLE VERIFICATION -->
-  <meta name="google-site-verification" content="ubP1fMDpNataBsqDRdeIVXRww9LBQ0Mg3308vtlNVGA" />
 
   <!-- FAVICON -->
   <link rel="icon" type="image/png" href="favicon.png">
@@ -41,6 +38,7 @@
       font-size: 14px;
     }
 
+    /* LEGEND STYLE — LEFT & FIT CONTENT */
     #legend {
       position: absolute;
       left: 10px;
@@ -89,6 +87,7 @@
 
 <div id="map"></div>
 
+<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
@@ -99,6 +98,7 @@
     { maxZoom: 22 }
   ).addTo(map);
 
+  /* ICONS */
   const soilIcon = L.icon({
     iconUrl: "soil.png",
     iconSize: [32, 32],
@@ -117,6 +117,7 @@
     iconAnchor: [16, 32]
   });
 
+  /* MARKERS */
   const soilMarkers = [
     L.marker([9.878807, 123.590615], {icon: soilIcon}),
     L.marker([9.878693, 123.590954], {icon: soilIcon}),
@@ -140,8 +141,17 @@
   [...soilMarkers, ...trapdoorMarkers,
    mainWaterMarker, downstreamWaterMarker]
    .forEach(m => m.addTo(map));
+
+  /* COLOR OVERLAY FUNCTION */
+  function colorOverlay(color) {
+    return `
+      filter: drop-shadow(0 0 6px ${color})
+              saturate(200%);
+    `;
+  }
 </script>
 
+<!-- Firebase -->
 <script type="module">
 import { initializeApp } from
   "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
@@ -174,20 +184,25 @@ onValue(systemRef, (snapshot) => {
   document.getElementById("water").textContent =
     data.water.main;
 
+  /* SOIL COLORS */
   for (let i = 0; i < 4; i++) {
     const v = data.soil["zone" + (i + 1)];
     const color = v < 40 ? "red" : "green";
     soilMarkers[i].getElement().style =
       `filter: drop-shadow(0 0 6px ${color});`;
+    soilMarkers[i].bindPopup(`Soil Zone ${i+1}: ${v}%`);
   }
 
+  /* TRAPDOOR COLORS */
   for (let i = 0; i < 4; i++) {
     const s = data.trapdoors["zone" + (i + 1)];
     const color = s === "OPEN" ? "green" : "red";
     trapdoorMarkers[i].getElement().style =
       `filter: drop-shadow(0 0 6px ${color});`;
+    trapdoorMarkers[i].bindPopup(`Trapdoor ${i+1}: ${s}`);
   }
 
+  /* WATER COLORS */
   const mainColor = data.water.main < 30 ? "orange" : "blue";
   mainWaterMarker.getElement().style =
     `filter: drop-shadow(0 0 6px ${mainColor});`;
