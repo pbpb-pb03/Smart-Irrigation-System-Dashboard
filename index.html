@@ -3,25 +3,21 @@
 <head>
 <meta name="google-site-verification" content="1Q20eH-X0kRAdVHdf_mpmD01T8kP9Nc-gsq--t4Dm5c" />
 <meta property="og:site_name" content="Smart Irrigation System Real-Time Monitoring">
-<meta name="description" content="Real-time smart irrigation monitoring system in Argao Cebu using ESP32, soil moisture sensors, water level sensors, and automated canal trapdoors to prevent overflow and improve rice field irrigation.">
+<meta name="description" content="Real-time smart irrigation monitoring system in Argao Cebu using ESP32, soil moisture sensors, water level sensors, and automated canal trapdoors.">
 <meta property="og:title" content="Smart Irrigation System Real-Time Monitoring">
-<meta property="og:description" content="ESP32 based irrigation system with soil moisture sensors and automated canal control in Argao Cebu.">
+<meta property="og:description" content="ESP32 based irrigation system with automated canal control.">
 <meta property="og:image" content="logo.png">
 <meta charset="UTF-8">
-<title>Smart Irrigation System Monitoring|Argao Cebu Rice Field Dashboard</title>
+<title>Smart Irrigation System Monitoring | Argao Cebu</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="icon" href="favicon.png" sizes="96x96">
 
-<link rel="stylesheet"
-href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet-minimap/dist/Control.MiniMap.min.css" />
 
 <style>
-body{
-  margin:0;
-  text-align:center;
-}
+body{ margin:0; text-align:center; }
 
 #header{
   background:#d2ffcf;
@@ -42,7 +38,6 @@ body{
   font-size:14px;
 }
 
-/* LEGEND — FIT CONTENT ONLY */
 #legend{
   position:absolute;
   left:50px;
@@ -59,17 +54,9 @@ body{
   z-index:999;
 }
 
-#map{
-  height:500px;
-  width:100%;
-  margin-bottom:10px;
-}
+#map{ height:500px; width:100%; }
 
-#street-view{
-  height:300px;
-  width:100%;
-  margin-top:10px;
-}
+#street-view{ height:300px; width:100%; margin-top:10px; }
 </style>
 </head>
 
@@ -97,16 +84,9 @@ body{
 
 <div id="map"></div>
 
-<!-- Street View Embed -->
 <div id="street-view">
-<iframe 
-  width="100%" 
-  height="300" 
-  style="border:0;" 
-  loading="lazy" 
-  allowfullscreen 
-  referrerpolicy="no-referrer-when-downgrade"
-  src="https://www.google.com/maps/embed?pb=!4v1697316241923!6m8!1m7!1sCAoSLEFGMVFpcE1ENm9vU0pVYlhCZXZqYkl4VXdpaDFMT0p4Rm9ndmlRbUhsTnR0!2m2!1d9.878639!2d123.590517!3f160!4f0!5f0.7820865974627469">
+<iframe width="100%" height="300" style="border:0;" loading="lazy"
+src="https://www.google.com/maps/embed?pb=!4v1697316241923!6m8!1m7!1sCAoSLEFGMVFpcE1ENm9vU0pVYlhCZXZqYkl4VXdpaDFMT0p4Rm9ndmlRbUhsTnR0!2m2!1d9.878639!2d123.590517!3f160!4f0!5f0.7820865974627469">
 </iframe>
 </div>
 
@@ -116,57 +96,43 @@ body{
 <script>
 const map = L.map('map').setView([9.878639,123.590517], 18);
 
-// Main tile layer
-L.tileLayer(
-  'https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
-  {
-    maxZoom:25,
-    subdomains:['mt0','mt1','mt2','mt3']
-  }).addTo(map);
+L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
+  maxZoom:25,
+  subdomains:['mt0','mt1','mt2','mt3']
+}).addTo(map);
 
-// MiniMap overview
-const miniMapLayer = L.tileLayer(
-  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-);
-const miniMap = new L.Control.MiniMap(miniMapLayer, { toggleDisplay: true }).addTo(map);
+const miniMapLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+new L.Control.MiniMap(miniMapLayer,{toggleDisplay:true}).addTo(map);
 
-// Simple dot icons
 function makeDot(color){
   return L.divIcon({
-    className:"",
-    html:`<div style="
-      width:12px;
-      height:12px;
-      border-radius:50%;
-      background:${color};
-      border:2px solid white;
-      box-shadow:0 0 8px ${color};
-    "></div>`
+    html:`<div style="width:12px;height:12px;border-radius:50%;
+    background:${color};border:2px solid white;box-shadow:0 0 8px ${color};"></div>`
   });
 }
 
-// MARKERS
+/* MARKERS */
 const soilMarkers=[
-  L.marker([9.878869, 123.590627]),
-  L.marker([9.878761, 123.590973]),
-  L.marker([9.878670, 123.591522]),
-  L.marker([9.878307, 123.591236])
+  L.marker([9.878869,123.590627]),
+  L.marker([9.878761,123.590973]),
+  L.marker([9.878670,123.591522]),
+  L.marker([9.878307,123.591236])
 ];
 
 const trapdoorMarkers=[
-  L.marker([9.880028, 123.591534]),
-  L.marker([9.879988, 123.591630]),
-  L.marker([9.878530, 123.590804]),
-  L.marker([9.878422, 123.591424])
+  L.marker([9.880028,123.591534]),
+  L.marker([9.879988,123.591630]),
+  L.marker([9.878530,123.590804]),
+  L.marker([9.878422,123.591424])
 ];
 
-const mainWaterMarker=L.marker([9.879963, 123.591384]);
-const downstreamWaterMarker=L.marker([9.878364, 123.590804]);
+const mainWaterMarker=L.marker([9.879963,123.591384]);
+const downstreamWaterMarker=L.marker([9.878364,123.590804]);
 
-[...soilMarkers,...trapdoorMarkers, mainWaterMarker,downstreamWaterMarker].forEach(m=>m.addTo(map));
+[...soilMarkers,...trapdoorMarkers,mainWaterMarker,downstreamWaterMarker]
+.forEach(m=>m.addTo(map));
 </script>
 
-<!-- FIREBASE -->
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
 import {getDatabase,ref,onValue} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
@@ -184,41 +150,40 @@ onValue(systemRef,(snapshot)=>{
   const data=snapshot.val();
   if(!data)return;
 
-  // Average soil
+  /* STATUS BAR */
   const avg=(data.soil.zone1+data.soil.zone2+data.soil.zone3+data.soil.zone4)/4;
   document.getElementById("soil").textContent=avg.toFixed(1);
   document.getElementById("water").textContent=data.water.main;
 
-  // Soil markers
+  /* SOIL */
   for(let i=0;i<4;i++){
     let v=data.soil["zone"+(i+1)];
-    let color=v<40?"red":"green";
-    soilMarkers[i].setIcon(makeDot(color));
-    soilMarkers[i].bindPopup(`Zone ${i+1}<br>Soil: ${v}%`);
+    soilMarkers[i].setIcon(makeDot(v<40?"red":"green"));
+    soilMarkers[i].bindPopup(`Zone ${i+1}<br>Soil Moisture: ${v}%`);
   }
 
-  // Trapdoor markers
+  /* TRAPDOORS — UPDATED LOGIC LABELS */
+  const labels=[
+    "TD1 Main Control (Zones 1-2 + Overflow)",
+    "TD2 Zone 3 Gate",
+    "TD3 Exit Gate (Downstream Control)",
+    "TD4 Zone 4 Gate"
+  ];
+
   for(let i=0;i<4;i++){
     let s=data.trapdoors["zone"+(i+1)];
-    let color=s==="OPEN"?"green":"red";
-    trapdoorMarkers[i].setIcon(makeDot(color));
-    trapdoorMarkers[i].bindPopup(`Trapdoor ${i+1}<br>Status: ${s}`);
+    trapdoorMarkers[i].setIcon(makeDot(s==="OPEN"?"green":"red"));
+    trapdoorMarkers[i].bindPopup(`${labels[i]}<br>Status: ${s}`);
   }
 
-  // Water markers
-  let mainColor=data.water.main<30?"orange":"blue";
-  mainWaterMarker.setIcon(makeDot(mainColor));
+  /* WATER */
+  mainWaterMarker.setIcon(makeDot(data.water.main<30?"orange":"blue"));
   mainWaterMarker.bindPopup(`Main Canal<br>${data.water.main}%`);
 
-  let downColor=data.water.downstream<30?"orange":"blue";
-  downstreamWaterMarker.setIcon(makeDot(downColor));
+  downstreamWaterMarker.setIcon(makeDot(data.water.downstream<30?"orange":"blue"));
   downstreamWaterMarker.bindPopup(`Downstream Canal<br>${data.water.downstream}%`);
 });
 </script>
 
 </body>
 </html>
-
-
-
-
