@@ -62,11 +62,10 @@ body { margin:0; text-align:center; font-family:Arial; }
 
 <div id="legend">
 <b>LEGEND</b><br><br>
-🟢 Soil OK ≥40%<br>
-🔴 Soil Dry <40%<br><br>
+🟢 Soil OK ≥60%<br>
 🟢 Trapdoor OPEN<br>
 🔴 Trapdoor CLOSED<br><br>
-🔵 Water Normal ≥25%<br>
+🔵 Water Start ≥30%<br>
 🟠 Water Low <25%<br>
 🔴 Overflow ≥40%
 </div>
@@ -137,7 +136,7 @@ onValue(systemRef, (snapshot) => {
   const data = snapshot.val();
   if(!data) return;
 
-const systemStatus = data.system_status; // true = ON, false = OFF
+  const systemStatus = data.system_status; // true = ON, false = OFF
 
   if(!systemStatus){
     // SYSTEM OFF → reset all readings
@@ -159,15 +158,15 @@ const systemStatus = data.system_status; // true = ON, false = OFF
     return;
   }
 
-  // SYSTEM ON → display live readings
+  // SYSTEM ON → show actual data
   const avg = (data.soil.zone1 + data.soil.zone2 + data.soil.zone3 + data.soil.zone4)/4;
   document.getElementById("soil").textContent = avg.toFixed(1);
   document.getElementById("water").textContent = data.water.main;
 
   // SOIL MARKERS
-  for(let i=0;i<4;i++){
+  for(let i=0; i<4; i++){
     const v = data.soil["zone"+(i+1)];
-    soilMarkers[i].setIcon(makeDot(v<40?"red":"green"));
+    soilMarkers[i].setIcon(makeDot(v<60?"red":"green")); // Threshold updated to 60%
     soilMarkers[i].bindPopup(`Zone ${i+1}<br>Soil Moisture: ${v}%`);
   }
 
@@ -189,7 +188,7 @@ const systemStatus = data.system_status; // true = ON, false = OFF
   const main = data.water.main;
   const down = data.water.downstream;
 
-  mainWaterMarker.setIcon(makeDot(main>=40?"red": main<25?"orange":"blue"));
+  mainWaterMarker.setIcon(makeDot(main>=40?"red": main<30?"orange":"blue")); // Water Start >=30%
   mainWaterMarker.bindPopup(`Main Water<br>${main}%`);
 
   downstreamWaterMarker.setIcon(makeDot(down>=40?"red": down<25?"orange":"blue"));
@@ -199,4 +198,3 @@ const systemStatus = data.system_status; // true = ON, false = OFF
 
 </body>
 </html>
-
