@@ -137,10 +137,10 @@ onValue(systemRef, (snapshot) => {
   const data = snapshot.val();
   if(!data) return;
 
-  const systemStatus = data.system_status;
+const systemStatus = data.system_status; // true = ON, false = OFF
 
   if(!systemStatus){
-    // SYSTEM OFF → grey out
+    // SYSTEM OFF → reset all readings
     document.getElementById("soil").textContent = "0";
     document.getElementById("water").textContent = "0";
 
@@ -199,3 +199,4 @@ onValue(systemRef, (snapshot) => {
 
 </body>
 </html>
+
