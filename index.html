@@ -5,7 +5,7 @@
 <title>Smart Irrigation System Monitoring</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="icon" href="favicon.png" sizes="32x32">
+<link rel="icon" href="favicon.png" sizes="96x96">
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet-minimap/dist/Control.MiniMap.min.css" />
 
@@ -16,34 +16,31 @@ body { margin:0; text-align:center; font-family:Arial; }
   background:#d2ffcf;
   color:darkgreen;
   padding:10px;
-  font-weight:bold;
 }
 
 #status {
   background:#eef;
   padding:6px;
-  font-size:14px;
 }
 
 #legend {
   position:absolute;
-  left:20px;
-  top:100px;
+  left:30px;
+  top:120px;
   background:#eef;
   padding:12px;
   border-radius:8px;
   box-shadow:0 3px 8px rgba(0,0,0,0.3);
-  font-size:14px;
-  text-align:left;
-  line-height:1.5;
   z-index:999;
+  text-align:left;
 }
 
 #map { height:500px; width:100%; }
 
-.leaflet-div-icon {
-  background: none !important;
-  border: none !important;
+#street-view {
+  height:300px;
+  width:100%;
+  margin-top:10px;
 }
 </style>
 </head>
@@ -72,40 +69,41 @@ body { margin:0; text-align:center; font-family:Arial; }
 
 <div id="map"></div>
 
+<div id="street-view">
+<iframe width="100%" height="300" style="border:0;" loading="lazy"
+src="https://www.google.com/maps/embed?pb=!4v1697316241923!6m8!1m7!1sCAoSLEFGMVFpcE1ENm9vU0pVYlhCZXZqYkl4VXdpaDFMT0p4Rm9ndmlRbUhsTnR0!2m2!1d9.878639!2d123.590517!3f160!4f0!5f0.7820865974627469">
+</iframe>
+</div>
+
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-minimap/dist/Control.MiniMap.min.js"></script>
 
 <script>
 const map = L.map('map').setView([9.878639,123.590517], 18);
 
-// Google Satellite Tiles
 L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
   maxZoom:25,
   subdomains:['mt0','mt1','mt2','mt3']
 }).addTo(map);
 
-// MiniMap
-const miniMapLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
-new L.Control.MiniMap(miniMapLayer,{toggleDisplay:true}).addTo(map);
-
-// Clean dot markers
 function makeDot(color){
   return L.divIcon({
-    html:`<div style="width:12px;height:12px;border-radius:50%;
-    background:${color};"></div>`,
-    className: ''
+    html:`<div style="width:14px;height:14px;border-radius:50%;
+    background:${color};border:2px solid white;
+    box-shadow:0 0 6px ${color};"></div>`,
+    className:""
   });
 }
 
-// MARKERS
-const soilMarkers = [
+/* MARKERS */
+const soilMarkers=[
   L.marker([9.878869,123.590627]),
   L.marker([9.878761,123.590973]),
   L.marker([9.878670,123.591522]),
   L.marker([9.878307,123.591236])
 ];
 
-const trapdoorMarkers = [
+const trapdoorMarkers=[
   L.marker([9.880028,123.591534]),
   L.marker([9.879988,123.591630]),
   L.marker([9.878530,123.590804]),
@@ -115,63 +113,61 @@ const trapdoorMarkers = [
 const mainWaterMarker = L.marker([9.879963,123.591384]);
 const downstreamWaterMarker = L.marker([9.878364,123.590804]);
 
-[...soilMarkers,...trapdoorMarkers,mainWaterMarker,downstreamWaterMarker]
-.forEach(m => m.addTo(map));
+[...soilMarkers, ...trapdoorMarkers, mainWaterMarker, downstreamWaterMarker].forEach(m=>m.addTo(map));
 </script>
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-import {getDatabase,ref,onValue} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+import {getDatabase, ref, onValue} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey:"AIzaSyC_2_mTMBezUGrXb74aBtl_0FzcqmL1tW8",
-  databaseURL:"https://agos-d6a27-default-rtdb.asia-southeast1.firebasedatabase.app"
+  apiKey: "AIzaSyC_2_mTMBezUGrXb74aBtl_0FzcqmL1tW8",
+  databaseURL: "https://agos-d6a27-default-rtdb.asia-southeast1.firebasedatabase.app"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-const systemRef = ref(db,"systems/system1");
+const systemRef = ref(db, "systems/system1");
 
-onValue(systemRef,(snapshot)=>{
+onValue(systemRef, (snapshot) => {
   const data = snapshot.val();
   if(!data) return;
 
   // STATUS BAR
-  const avg = (data.soil.zone1 + data.soil.zone2 + data.soil.zone3 + data.soil.zone4) / 4;
+  const avg = (data.soil.zone1 + data.soil.zone2 + data.soil.zone3 + data.soil.zone4)/4;
   document.getElementById("soil").textContent = avg.toFixed(1);
   document.getElementById("water").textContent = data.water.main;
 
   // SOIL MARKERS
-  for(let i=0;i<4;i++){
-    let v = data.soil["zone"+(i+1)];
+  for(let i=0; i<4; i++){
+    const v = data.soil["zone"+(i+1)];
     soilMarkers[i].setIcon(makeDot(v<40?"red":"green"));
     soilMarkers[i].bindPopup(`Zone ${i+1}<br>Soil Moisture: ${v}%`);
   }
 
   // TRAPDOOR LABELS
   const labels = [
-    "Trapdoor 1 (Main Gate)",
-    "Trapdoor 2 (Zone 3 Gate)",
-    "Trapdoor 3 (Exit Gate)",
-    "Trapdoor 4 (Zone 4 Gate)"
+    "Trapdoor 1 Main Gate (Zones 1-2 + Overflow)",
+    "Trapdoor 2 Zone 3 Gate (Closes if soil ≥60%)",
+    "Trapdoor 3 Exit Gate (Closes if downstream overflow)",
+    "Trapdoor 4 Zone 4 Irrigation Gate (Closes if soil ≥60%)"
   ];
 
   for(let i=0;i<4;i++){
-    let s = data.trapdoors["zone"+(i+1)];
+    const s = data.trapdoors["zone"+(i+1)];
     trapdoorMarkers[i].setIcon(makeDot(s==="OPEN"?"green":"red"));
     trapdoorMarkers[i].bindPopup(`${labels[i]}<br>Status: ${s}`);
   }
 
   // WATER MARKERS
-  mainWaterMarker.setIcon(makeDot(
-    data.water.main>=40?"red": data.water.main<25?"orange":"blue"
-  ));
-  mainWaterMarker.bindPopup(`Main Water<br>${data.water.main}%`);
+  const main = data.water.main;
+  const down = data.water.downstream;
 
-  downstreamWaterMarker.setIcon(makeDot(
-    data.water.downstream>=40?"red": data.water.downstream<25?"orange":"blue"
-  ));
-  downstreamWaterMarker.bindPopup(`Downstream Water<br>${data.water.downstream}%`);
+  mainWaterMarker.setIcon(makeDot(main>=40?"red": main<25?"orange":"blue"));
+  mainWaterMarker.bindPopup(`Main Water<br>${main}%`);
+
+  downstreamWaterMarker.setIcon(makeDot(down>=40?"red": down<25?"orange":"blue"));
+  downstreamWaterMarker.bindPopup(`Downstream Water<br>${down}%`);
 });
 </script>
 
