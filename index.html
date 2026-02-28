@@ -133,6 +133,20 @@ onValue(systemRef, (snapshot) => {
   const data = snapshot.val();
   if(!data) return;
 
+  const systemStatus = data.status; // 1 = ON, 0 = OFF
+
+  if(systemStatus === 0){
+    // SYSTEM OFF → reset all readings
+    document.getElementById("soil").textContent = "0";
+    document.getElementById("water").textContent = "0";
+
+    soilMarkers.forEach(m => m.setIcon(makeDot("grey")));
+    trapdoorMarkers.forEach(m => m.setIcon(makeDot("grey")));
+    mainWaterMarker.setIcon(makeDot("grey"));
+    downstreamWaterMarker.setIcon(makeDot("grey"));
+    return;
+  }
+
   // STATUS BAR
   const avg = (data.soil.zone1 + data.soil.zone2 + data.soil.zone3 + data.soil.zone4)/4;
   document.getElementById("soil").textContent = avg.toFixed(1);
@@ -173,4 +187,3 @@ onValue(systemRef, (snapshot) => {
 
 </body>
 </html>
-
