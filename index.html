@@ -1,93 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta name="google-site-verification" content="1Q20eH-X0kRAdVHdf_mpmD01T8kP9Nc-gsq--t4Dm5c" />
-<meta property="og:site_name" content="Smart Irrigation System Real-Time Monitoring">
-<meta name="description" content="Real-time smart irrigation monitoring system in Argao Cebu using ESP32, soil moisture sensors, water level sensors, and automated canal trapdoors.">
-<meta property="og:title" content="Smart Irrigation System Real-Time Monitoring">
-<meta property="og:description" content="ESP32 based irrigation system with automated canal control.">
-<meta property="og:image" content="logo.png">
 <meta charset="UTF-8">
-<title>Smart Irrigation System Monitoring | Argao Cebu</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<link rel="icon" href="favicon.png" sizes="96x96">
-
+<title>Smart Irrigation System Monitoring | Argao Cebu</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet-minimap/dist/Control.MiniMap.min.css" />
 
 <style>
-body{ margin:0; text-align:center; }
-
-#header{
-  background:#d2ffcf;
-  color:darkgreen;
-  padding:10px;
-  font-family:"Times New Roman", Times, serif;
-}
-
-#header img{
-  height:55px;
-  vertical-align:middle;
-  margin-right:10px;
-}
-
-#status{
-  background:#eef;
-  padding:6px;
-  font-size:14px;
-}
-
-#legend{
-  position:absolute;
-  left:50px;
-  top:120px;
-  background:#eef;
-  padding:12px;
-  font-size:14px;
-  text-align:left;
-  border-radius:8px;
-  box-shadow:0 3px 8px rgba(0,0,0,0.3);
-  display:inline-block;
-  width:auto;
-  white-space:nowrap;
-  z-index:999;
-}
-
-#map{ height:500px; width:100%; }
-
-#street-view{ height:300px; width:100%; margin-top:10px; }
+body { margin:0; text-align:center; font-family:Arial, sans-serif; }
+#header { background:#d2ffcf; color:darkgreen; padding:10px; }
+#header img { height:55px; vertical-align:middle; margin-right:10px; }
+#status { background:#eef; padding:6px; font-size:14px; }
+#legend { position:absolute; left:50px; top:120px; background:#eef; padding:12px;
+  font-size:14px; text-align:left; border-radius:8px; box-shadow:0 3px 8px rgba(0,0,0,0.3);
+  display:inline-block; width:auto; white-space:nowrap; z-index:999; }
+#map { height:500px; width:100%; }
+#street-view { height:300px; width:100%; margin-top:10px; }
 </style>
 </head>
-
 <body>
 
 <div id="header">
-<img src="logo.png">
-<h2 style="display:inline;">Smart Irrigation Dashboard</h2>
+  <img src="logo.png" alt="Logo">
+  <h2 style="display:inline;">Smart Irrigation Dashboard</h2>
 </div>
 
 <div id="status">
-<b>Average Soil Moisture:</b> <span id="soil">--</span>% |
-<b>Main Water:</b> <span id="water">--</span>%
+  <b>Average Soil Moisture:</b> <span id="soil">--</span>% |
+  <b>Main Water:</b> <span id="water">--</span>%
 </div>
 
 <div id="legend">
-<b>LEGEND</b><br><br>
-🟢 Soil OK ≥40%<br>
-🔴 Soil Dry <40%<br><br>
-🟢 Trapdoor OPEN<br>
-🔴 Trapdoor CLOSED<br><br>
-🔵 Water Normal ≥30%<br>
-🟠 Water Low <30%
+  <b>LEGEND</b><br><br>
+  🟢 Soil OK ≥40%<br>
+  🔴 Soil Dry <40%<br><br>
+  🟢 Trapdoor OPEN<br>
+  🔴 Trapdoor CLOSED<br><br>
+  🔵 Water Normal ≥30%<br>
+  🟠 Water Low <30%<br>
+  🔴 Water Overflow ≥40%
 </div>
 
 <div id="map"></div>
 
 <div id="street-view">
-<iframe width="100%" height="300" style="border:0;" loading="lazy"
-src="https://www.google.com/maps/embed?pb=!4v1697316241923!6m8!1m7!1sCAoSLEFGMVFpcE1ENm9vU0pVYlhCZXZqYkl4VXdpaDFMT0p4Rm9ndmlRbUhsTnR0!2m2!1d9.878639!2d123.590517!3f160!4f0!5f0.7820865974627469">
-</iframe>
+  <iframe width="100%" height="300" style="border:0;" loading="lazy"
+    src="https://www.google.com/maps/embed?pb=!4v1697316241923!6m8!1m7!1sCAoSLEFGMVFpcE1ENm9vU0pVYlhCZXZqYkl4VXdpaDFMT0p4Rm9ndmlRbUhsTnR0!2m2!1d9.878639!2d123.590517!3f160!4f0!5f0.7820865974627469">
+  </iframe>
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -96,9 +56,8 @@ src="https://www.google.com/maps/embed?pb=!4v1697316241923!6m8!1m7!1sCAoSLEFGMVF
 <script>
 const map = L.map('map').setView([9.878639,123.590517], 18);
 
-L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
-  maxZoom:25,
-  subdomains:['mt0','mt1','mt2','mt3']
+L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+  maxZoom:25, subdomains:['mt0','mt1','mt2','mt3']
 }).addTo(map);
 
 const miniMapLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
@@ -112,75 +71,76 @@ function makeDot(color){
 }
 
 /* MARKERS */
-const soilMarkers=[
+const soilMarkers = [
   L.marker([9.878869,123.590627]),
   L.marker([9.878761,123.590973]),
   L.marker([9.878670,123.591522]),
   L.marker([9.878307,123.591236])
 ];
 
-const trapdoorMarkers=[
+const trapdoorMarkers = [
   L.marker([9.880028,123.591534]),
   L.marker([9.879988,123.591630]),
   L.marker([9.878530,123.590804]),
   L.marker([9.878422,123.591424])
 ];
 
-const mainWaterMarker=L.marker([9.879963,123.591384]);
-const downstreamWaterMarker=L.marker([9.878364,123.590804]);
+const mainWaterMarker = L.marker([9.879963,123.591384]);
+const downstreamWaterMarker = L.marker([9.878364,123.590804]);
 
-[...soilMarkers,...trapdoorMarkers,mainWaterMarker,downstreamWaterMarker]
-.forEach(m=>m.addTo(map));
+[...soilMarkers,...trapdoorMarkers,mainWaterMarker,downstreamWaterMarker].forEach(m=>m.addTo(map));
 </script>
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-import {getDatabase,ref,onValue} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+import {getDatabase, ref, onValue} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
 
-const firebaseConfig={
-apiKey:"AIzaSyC_2_mTMBezUGrXb74aBtl_0FzcqmL1tW8",
-databaseURL:"https://agos-d6a27-default-rtdb.asia-southeast1.firebasedatabase.app"
+const firebaseConfig = {
+  apiKey: "AIzaSyC_2_mTMBezUGrXb74aBtl_0FzcqmL1tW8",
+  databaseURL: "https://agos-d6a27-default-rtdb.asia-southeast1.firebasedatabase.app"
 };
 
-const app=initializeApp(firebaseConfig);
-const db=getDatabase(app);
-const systemRef=ref(db,"systems/system1");
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const systemRef = ref(db, "systems/system1");
 
-onValue(systemRef,(snapshot)=>{
-  const data=snapshot.val();
-  if(!data)return;
+onValue(systemRef, (snapshot) => {
+  const data = snapshot.val();
+  if (!data) return;
 
-  /* STATUS BAR */
-  const avg=(data.soil.zone1+data.soil.zone2+data.soil.zone3+data.soil.zone4)/4;
-  document.getElementById("soil").textContent=avg.toFixed(1);
-  document.getElementById("water").textContent=data.water.main;
+  // STATUS BAR
+  const avg = (data.soil.zone1 + data.soil.zone2 + data.soil.zone3 + data.soil.zone4) / 4;
+  document.getElementById("soil").textContent = avg.toFixed(1);
+  document.getElementById("water").textContent = data.water.main;
 
-  /* SOIL */
-  for(let i=0;i<4;i++){
-    let v=data.soil["zone"+(i+1)];
+  // SOIL MARKERS
+  for (let i = 0; i < 4; i++) {
+    let v = data.soil["zone"+(i+1)];
     soilMarkers[i].setIcon(makeDot(v<40?"red":"green"));
     soilMarkers[i].bindPopup(`Zone ${i+1}<br>Soil Moisture: ${v}%`);
   }
 
-  /* TRAPDOORS — UPDATED LOGIC LABELS */
-  const labels=[
+  // TRAPDOORS
+  const labels = [
     "TD1 Main Control (Zones 1-2 + Overflow)",
     "TD2 Zone 3 Gate",
     "TD3 Exit Gate (Downstream Control)",
     "TD4 Zone 4 Gate"
   ];
 
-  for(let i=0;i<4;i++){
-    let s=data.trapdoors["zone"+(i+1)];
+  for (let i = 0; i < 4; i++) {
+    let s = data.trapdoors["zone"+(i+1)];
     trapdoorMarkers[i].setIcon(makeDot(s==="OPEN"?"green":"red"));
     trapdoorMarkers[i].bindPopup(`${labels[i]}<br>Status: ${s}`);
   }
 
-  /* WATER */
-  mainWaterMarker.setIcon(makeDot(data.water.main<30?"orange":"blue"));
+  // WATER MARKERS
+  const mainColor = data.water.main >= 40 ? "red" : (data.water.main >= 30 ? "blue" : "orange");
+  mainWaterMarker.setIcon(makeDot(mainColor));
   mainWaterMarker.bindPopup(`Main Canal<br>${data.water.main}%`);
 
-  downstreamWaterMarker.setIcon(makeDot(data.water.downstream<30?"orange":"blue"));
+  const downColor = data.water.downstream >= 40 ? "red" : (data.water.downstream >= 30 ? "blue" : "orange");
+  downstreamWaterMarker.setIcon(makeDot(downColor));
   downstreamWaterMarker.bindPopup(`Downstream Canal<br>${data.water.downstream}%`);
 });
 </script>
