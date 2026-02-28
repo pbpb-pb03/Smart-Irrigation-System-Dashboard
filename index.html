@@ -133,21 +133,29 @@ onValue(systemRef, (snapshot) => {
   const data = snapshot.val();
   if(!data) return;
 
-  const systemStatus = data.status; // 1 = ON, 0 = OFF
+  const systemStatus = data.system_status; // true = ON, false = OFF
 
-  if(systemStatus === 0){
+  if(!systemStatus){
     // SYSTEM OFF → reset all readings
     document.getElementById("soil").textContent = "0";
     document.getElementById("water").textContent = "0";
 
-    soilMarkers.forEach(m => m.setIcon(makeDot("grey")));
-    trapdoorMarkers.forEach(m => m.setIcon(makeDot("grey")));
-    mainWaterMarker.setIcon(makeDot("grey"));
-    downstreamWaterMarker.setIcon(makeDot("grey"));
+    soilMarkers.forEach((m,i) => {
+      m.setIcon(makeDot("grey"));
+      m.bindPopup(`Zone ${i+1}<br>Soil Moisture: 0%`);
+    });
+
+    trapdoorMarkers.forEach((m,i) => {
+      m.setIcon(makeDot("grey"));
+      m.bindPopup(`Trapdoor ${i+1}<br>Status: CLOSED`);
+    });
+
+    mainWaterMarker.setIcon(makeDot("grey")).bindPopup(`Main Water<br>0%`);
+    downstreamWaterMarker.setIcon(makeDot("grey")).bindPopup(`Downstream Water<br>0%`);
     return;
   }
 
-  // STATUS BAR
+  // SYSTEM ON → show actual data
   const avg = (data.soil.zone1 + data.soil.zone2 + data.soil.zone3 + data.soil.zone4)/4;
   document.getElementById("soil").textContent = avg.toFixed(1);
   document.getElementById("water").textContent = data.water.main;
