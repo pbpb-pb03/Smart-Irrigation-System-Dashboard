@@ -57,17 +57,23 @@ body { margin:0; text-align:center; font-family:Arial; }
 
 <div id="status">
 <b>Average Soil:</b> <span id="soil">--</span>% |
-<b>Main Water:</b> <span id="water">--</span>%
+<b>Main Water:</b> <span id="water">--</span>% |
+<b>Downstream:</b> <span id="downstream">--</span>%
 </div>
 
 <div id="legend">
 <b>LEGEND</b><br><br>
-🟢 Soil OK ≥60%<br>
+🟢 Soil OK ≤45%<br>
 🟢 Trapdoor OPEN<br>
 🔴 Trapdoor CLOSED<br><br>
-🔵 Water Start ≥30%<br>
-🟠 Water Low <25%<br>
-🔴 Overflow ≥40%
+🔵 Water Start ≥20%<br>
+🟠 Water Low ≤25%<br>
+🔴 Overflow ≥35%<br><br>
+Trapdoor Notes:<br>
+TD1 - Main Canal Gate: Closes ≥35%, Reopens ≤25%, Soil closes ≥45%, Reopens ≤35%<br>
+TD2 - Zone 3: Close ≥50%, Reopen ≤40% (hysteresis)<br>
+TD3 - Downstream Gate: Close ≥35%, Reopen ≤25%<br>
+TD4 - Zone 4: Close ≥45%, Reopen ≤35% (hysteresis)
 </div>
 
 <div id="map"></div>
@@ -139,9 +145,9 @@ onValue(systemRef, (snapshot) => {
   const systemStatus = data.system_status; // true = ON, false = OFF
 
   if(!systemStatus){
-    // SYSTEM OFF → reset all readings
     document.getElementById("soil").textContent = "0";
     document.getElementById("water").textContent = "0";
+    document.getElementById("downstream").textContent = "0";
 
     soilMarkers.forEach((m,i) => {
       m.setIcon(makeDot("grey"));
@@ -158,24 +164,24 @@ onValue(systemRef, (snapshot) => {
     return;
   }
 
-  // SYSTEM ON → show actual data
   const avg = (data.soil.zone1 + data.soil.zone2 + data.soil.zone3 + data.soil.zone4)/4;
   document.getElementById("soil").textContent = avg.toFixed(1);
   document.getElementById("water").textContent = data.water.main;
+  document.getElementById("downstream").textContent = data.water.downstream;
 
   // SOIL MARKERS
   for(let i=0; i<4; i++){
     const v = data.soil["zone"+(i+1)];
-    soilMarkers[i].setIcon(makeDot(v<60?"red":"green")); // Threshold updated to 60%
+    soilMarkers[i].setIcon(makeDot(v<=45?"green":"red")); // new threshold
     soilMarkers[i].bindPopup(`Zone ${i+1}<br>Soil Moisture: ${v}%`);
   }
 
   // TRAPDOOR LABELS
   const labels = [
-    "Trapdoor 1 Main Gate (Zones 1-2 + Overflow)",
-    "Trapdoor 2 Zone 3 Gate (Closes if soil ≥60%)",
-    "Trapdoor 3 Exit Gate (Closes if downstream overflow)",
-    "Trapdoor 4 Zone 4 Irrigation Gate (Closes if soil ≥60%)"
+    "Trapdoor 1 Main Gate (Zones 1-2 + Overflow, Close≥35%, Reopen≤25%, Soil Close≥45%, Reopen≤35%)",
+    "Trapdoor 2 Zone 3 (Close≥50%, Reopen≤40%)",
+    "Trapdoor 3 Downstream Gate (Close≥35%, Reopen≤25%)",
+    "Trapdoor 4 Zone 4 (Close≥45%, Reopen≤35%)"
   ];
 
   for(let i=0;i<4;i++){
@@ -188,10 +194,10 @@ onValue(systemRef, (snapshot) => {
   const main = data.water.main;
   const down = data.water.downstream;
 
-  mainWaterMarker.setIcon(makeDot(main>=40?"red": main<30?"orange":"blue")); // Water Start >=30%
+  mainWaterMarker.setIcon(makeDot(main>=35?"red": main<=25?"orange":"blue"));
   mainWaterMarker.bindPopup(`Main Water<br>${main}%`);
 
-  downstreamWaterMarker.setIcon(makeDot(down>=40?"red": down<25?"orange":"blue"));
+  downstreamWaterMarker.setIcon(makeDot(down>=35?"red": down<=25?"orange":"blue"));
   downstreamWaterMarker.bindPopup(`Downstream Water<br>${down}%`);
 });
 </script>
