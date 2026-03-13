@@ -62,32 +62,62 @@ body { margin:0; text-align:center; font-family:Arial; }
 </div>
 
 <div id="legend">
-<b>LEGEND</b><br><br>
-🟢 Soil OK ≥45%<br>
-🟢 Trapdoor OPEN<br>
-🔴 Trapdoor CLOSED<br><br>
-🔵 Water Start ≥20%<br>
-🟠 Water Low ≤25%<br>
-🔴 Overflow ≥35%<br><br>
-  
-<b>Trapdoor Notes:</b><br>
-<ul style="list-style:none; padding-left:0;">
-  <li><b>TD1 – Main Canal Gate:</b> 
-      <span style="color:red;">Closes ≥35%</span> | <span style="color:green;">Reopens ≤25%</span><br>
-      <span style="color:red;">Soil closes ≥45%</span> | <span style="color:green;">Reopens ≤35%</span>
-  </li><br>
-  <li><b>TD2 – Zone 3 Gate:</b> 
-      <span style="color:red;">Closes ≥50%</span> | <span style="color:green;">Reopens ≤40%</span>
-  </li><br>
-  <li><b>TD3 – Downstream Gate:</b> 
-      <span style="color:red;">Closes ≥35%</span> | <span style="color:green;">Reopens ≤25%</span>
-  </li><br>
-  <li><b>TD4 – Zone 4 Gate:</b> 
-      <span style="color:red;">Closes ≥45%</span> | <span style="color:green;">Reopens ≤35%</span>
-  </li>
-</ul>
+  <b style="cursor:pointer;" onclick="toggleLegend()">LEGEND &#9660;</b>
+  <div id="legendContent" style="margin-top:8px;">
+    <!-- Soil -->
+    <div>❤️ Soil OK ≥45%</div>
+    <!-- Trapdoor -->
+    <div>🟢 Trapdoor OPEN</div>
+    <div>🔴 Trapdoor CLOSED</div>
+    <!-- Water -->
+    <div>⭐ Water Start ≥20%</div>
+    <div>🟠 Water Low ≤25%</div>
+    <div>🔴 Overflow ≥35%</div>
+    <br>
+    <!-- Trapdoor Notes -->
+    <ul style="padding-left:15px;">
+      <li>
+        <b>TD1 – Main Canal Gate:</b>
+        <span style="margin-left:20px; display:block;">Zone 1 and 2 Gate: 
+            <span style="color:red;">Soil closes ≥45%</span> | <span style="color:green;">Reopens ≤35%</span>
+        </span>
+        <span style="margin-left:20px; display:block;">
+            <span style="color:red;">Water closes ≥35%</span> | <span style="color:green;">Reopens ≤25%</span>
+        </span>
+      </li>
+      <li>
+        <b>TD2 – Zone 3 Gate:</b>
+        <span style="margin-left:20px; display:block;">
+            <span style="color:red;">Closes ≥50%</span> | <span style="color:green;">Reopens ≤40%</span>
+        </span>
+      </li>
+      <li>
+        <b>TD3 – Downstream Exit Gate:</b>
+        <span style="margin-left:20px; display:block;">
+            <span style="color:red;">Closes ≥35%</span> | <span style="color:green;">Reopens ≤25%</span>
+        </span>
+      </li>
+      <li>
+        <b>TD4 – Zone 4 Gate:</b>
+        <span style="margin-left:20px; display:block;">
+            <span style="color:red;">Closes ≥45%</span> | <span style="color:green;">Reopens ≤35%</span>
+        </span>
+      </li>
+    </ul>
+  </div>
 </div>
 
+<script>
+function toggleLegend(){
+  const content = document.getElementById("legendContent");
+  if(content.style.display === "none"){
+    content.style.display = "block";
+  } else {
+    content.style.display = "none";
+  }
+}
+</script>
+  
 <div id="map"></div>
 
 <div id="street-view">
